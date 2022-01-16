@@ -1,3 +1,7 @@
+mod words;
+use crate::words::ANSWERS;
+
 fn main() {
-    println!("Hello, world!");
+    let answer = ANSWERS[0];
+    println!("{}", answer);
 }
