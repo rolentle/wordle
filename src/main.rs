@@ -2,20 +2,25 @@ use std::io;
 mod words;
 use crate::words::*;
 
+fn get_guess() -> String {
+    println!("Please input your guess.");
+    let mut guess = String::new();
+    io::stdin()
+    .read_line(&mut guess)
+    .expect("Failed to read line");
+    println!("guess: {}", &guess);
+
+    let guess: String = guess.trim().parse().expect("Please type in a word");
+    guess
+}
+
 fn main() {
     let answer = ANSWERS[0];
-        println!("Please input your guess.");
 
     let mut turn: u8 = 1;
-    
-    while turn < 7 {
-        let mut guess = String::new();
-        io::stdin()
-        .read_line(&mut guess)
-        .expect("Failed to read line");
-        println!("guess: {}", &guess);
 
-        let guess: String = guess.trim().parse().expect("Please type in a word");
+    while turn < 7 {
+        let guess = get_guess();
         let is_valid_word: bool = VALID_WORDS
             .iter()
             .map(|w| w.to_string())
