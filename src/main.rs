@@ -29,6 +29,7 @@ fn is_five_len(guess: &str) -> bool {
 struct Game {
     answer: String,
     turn: u8,
+    max_turns: u8,
 }
 
 impl Game {
@@ -36,11 +37,13 @@ impl Game {
         Game {
             answer: ANSWERS[0].to_string(),
             turn: 1,
+            max_turns: 6,
         }
     }
 
     pub fn start(&mut self) {
-        while self.turn < 7 {
+        while self.is_game_over() {
+            println!("TURN {}", self.turn);
             let guess = get_guess();
 
             if !is_five_len(&guess) {
@@ -56,16 +59,20 @@ impl Game {
                 println!("You win!");
                 break;
             } else {
-                self.increment_turn();
                 println!("{} is incorrect.", guess);
+                self.increment_turn();
             };
         }
         println!("Gameover!");
     }
 
-    pub fn increment_turn(&mut self) -> u8 {
+    fn increment_turn(&mut self) -> u8 {
         self.turn += 1;
         self.turn
+    }
+
+    fn is_game_over(&self) -> bool {
+        self.turn <= self.max_turns
     }
 }
 
