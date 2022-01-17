@@ -39,6 +39,30 @@ impl Game {
         }
     }
 
+    pub fn start(&mut self) {
+        while self.turn < 7 {
+            let guess = get_guess();
+
+            if !is_five_len(&guess) {
+                println!(
+                    "Guess is must be 5 characters, {} has {} characters. Please guess again.",
+                    guess,
+                    guess.len()
+                );
+            } else if !is_in_dictionary(&guess) {
+                println!("{} is an invalid word, please guess again.", guess);
+            } else if self.answer == guess {
+                println!("{} is {}", self.answer, guess);
+                println!("You win!");
+                break;
+            } else {
+                self.increment_turn();
+                println!("{} is incorrect.", guess);
+            };
+        }
+        println!("Gameover!");
+    }
+
     pub fn increment_turn(&mut self) -> u8 {
         self.turn += 1;
         self.turn
@@ -46,27 +70,5 @@ impl Game {
 }
 
 fn main() {
-    let mut game: Game = Game::new();
-
-    while game.turn < 7 {
-        let guess = get_guess();
-
-        if !is_five_len(&guess) {
-            println!(
-                "Guess is must be 5 characters, {} has {} characters. Please guess again.",
-                guess,
-                guess.len()
-            );
-        } else if !is_in_dictionary(&guess) {
-            println!("{} is an invalid word, please guess again.", guess);
-        } else if game.answer == guess {
-            println!("{} is {}", game.answer, guess);
-            println!("You win!");
-            break;
-        } else {
-            game.increment_turn();
-            println!("{} is incorrect.", guess);
-        };
-    }
-    println!("Gameover!");
+    Game::new().start();
 }
