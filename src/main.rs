@@ -6,7 +6,7 @@ use colored::*;
 #[derive(Debug)]
 enum MatchType {
     ExtactMatch,
-    // PartialMatch,
+    PartialMatch,
     NoMatch,
 }
 
@@ -17,7 +17,7 @@ struct Guess {
 }
 
 impl Guess {
-    pub fn new() -> Guess {
+    pub fn new_from_stdin() -> Guess {
         println!("Please input your guess.");
         let mut guess = String::new();
         io::stdin()
@@ -26,9 +26,12 @@ impl Guess {
         println!("guess: {}", &guess);
 
         let guess: String = guess.trim().parse().expect("Please type in a word");
+        Guess::new(&guess)
+    }
 
+    pub fn new(guess: &str) -> Guess {
         Guess {
-            word: guess.clone(),
+            word: guess.to_string(),
             matches: guess
                 .chars()
                 .map(|c| (c, MatchType::NoMatch))
@@ -60,6 +63,18 @@ impl Guess {
                     self.matches[i] = (a, MatchType::ExtactMatch);
                 }
             });
+        self.matches = self.matches
+            .iter()
+            .map(|(letter, match_type)|
+            match match_type {
+                MatchType::ExtactMatch => (*letter, MatchType::ExtactMatch),
+                _ => if answer.contains(&letter.to_string()) {
+                    (*letter, MatchType::PartialMatch)
+                } else {
+                    (*letter, MatchType::NoMatch)
+                }
+            }
+        ).collect();
     }
 }
 
@@ -81,7 +96,7 @@ impl Game {
     pub fn start(&mut self) {
         while self.is_game_over() {
             println!("TURN {}", self.turn);
-            let mut guess = Guess::new();
+            let mut guess = Guess::new_from_stdin();
 
             if self.answer == guess.word {
                 println!("{} is {}", self.answer, guess.word);
@@ -102,13 +117,10 @@ impl Game {
                 guess
                     .matches
                     .iter()
-                    .for_each(|letter_tuple| println!("{:?}", letter_tuple));
-                guess
-                    .matches
-                    .iter()
                     .for_each(|match_letter| match match_letter.1 {
                         MatchType::ExtactMatch => print!("{}", match_letter.0.to_string().green()),
-                        _ => print!("{}", &match_letter.0.to_string().red()),
+                        MatchType::PartialMatch => print!("{}", &match_letter.0.to_string().yellow()),
+                        MatchType::NoMatch => print!("{}", &match_letter.0.to_string().red()),
                     });
                 println!("");
             };
