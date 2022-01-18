@@ -5,9 +5,9 @@ use colored::*;
 
 #[derive(Debug)]
 enum MatchType {
-    ExtactMatch,
-    PartialMatch,
-    NoMatch,
+    Extact,
+    Partial,
+    Empty,
 }
 
 #[derive(Debug)]
@@ -34,7 +34,7 @@ impl Guess {
             word: guess.to_string(),
             matches: guess
                 .chars()
-                .map(|c| (c, MatchType::NoMatch))
+                .map(|c| (c, MatchType::Empty))
                 .collect::<Vec<(char, MatchType)>>(),
         }
     }
@@ -55,23 +55,23 @@ impl Guess {
         self.word
             .clone()
             .chars()
-            .zip(answer.clone().chars())
+            .zip(&mut answer.chars())
             .enumerate()
             .map(|(index, (a_letter, w_letter))| (index, a_letter, a_letter == w_letter))
             .for_each(|(i, a, matched)| {
                 if matched {
-                    self.matches[i] = (a, MatchType::ExtactMatch);
+                    self.matches[i] = (a, MatchType::Extact);
                 }
             });
         self.matches = self.matches
             .iter()
             .map(|(letter, match_type)|
             match match_type {
-                MatchType::ExtactMatch => (*letter, MatchType::ExtactMatch),
+                MatchType::Extact => (*letter, MatchType::Extact),
                 _ => if answer.contains(&letter.to_string()) {
-                    (*letter, MatchType::PartialMatch)
+                    (*letter, MatchType::Partial)
                 } else {
-                    (*letter, MatchType::NoMatch)
+                    (*letter, MatchType::Empty)
                 }
             }
         ).collect();
@@ -113,16 +113,16 @@ impl Game {
             } else {
                 println!("{} is incorrect.", &guess.word);
                 self.increment_turn();
-                guess.find_match(&mut self.answer);
+                guess.find_match(&self.answer);
                 guess
                     .matches
                     .iter()
                     .for_each(|match_letter| match match_letter.1 {
-                        MatchType::ExtactMatch => print!("{}", match_letter.0.to_string().green()),
-                        MatchType::PartialMatch => print!("{}", &match_letter.0.to_string().yellow()),
-                        MatchType::NoMatch => print!("{}", &match_letter.0.to_string().red()),
+                        MatchType::Extact => print!("{}", match_letter.0.to_string().green()),
+                        MatchType::Partial => print!("{}", &match_letter.0.to_string().yellow()),
+                        MatchType::Empty => print!("{}", &match_letter.0.to_string().red()),
                     });
-                println!("");
+                println!();
             };
         }
         println!("Gameover!");
