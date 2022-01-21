@@ -76,12 +76,24 @@ impl Guess {
             }
         ).collect();
     }
+
+    pub fn print(&self) {
+                self.matches
+                    .iter()
+                    .for_each(|match_letter| match match_letter.1 {
+                        MatchType::Extact => print!("{}", match_letter.0.to_string().green()),
+                        MatchType::Partial => print!("{}", &match_letter.0.to_string().yellow()),
+                        MatchType::Empty => print!("{}", &match_letter.0.to_string().red()),
+                    });
+                println!();
+    }
 }
 
 struct Game {
     answer: String,
     turn: u8,
     max_turns: u8,
+    guesses: Vec<Guess>
 }
 
 impl Game {
@@ -90,6 +102,7 @@ impl Game {
             answer: ANSWERS[0].to_string(),
             turn: 1,
             max_turns: 6,
+            guesses: vec![]
         }
     }
 
@@ -99,7 +112,10 @@ impl Game {
             let mut guess = Guess::new_from_stdin();
 
             if self.answer == guess.word {
-                println!("{} is {}", self.answer, guess.word);
+                guess.find_match(&self.answer);
+                self.guesses.push(guess);
+                self.guesses.iter().for_each(|g| g.print());
+                println!("{} is is correct", self.answer);
                 println!("You win!");
                 break;
             } else if !guess.is_five_len() {
@@ -114,15 +130,8 @@ impl Game {
                 println!("{} is incorrect.", &guess.word);
                 self.increment_turn();
                 guess.find_match(&self.answer);
-                guess
-                    .matches
-                    .iter()
-                    .for_each(|match_letter| match match_letter.1 {
-                        MatchType::Extact => print!("{}", match_letter.0.to_string().green()),
-                        MatchType::Partial => print!("{}", &match_letter.0.to_string().yellow()),
-                        MatchType::Empty => print!("{}", &match_letter.0.to_string().red()),
-                    });
-                println!();
+                self.guesses.push(guess);
+                self.guesses.iter().for_each(|g| g.print());
             };
         }
         println!("Gameover!");
